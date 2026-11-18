@@ -283,6 +283,8 @@ SyberMem 有两类执行路径，可靠性不同：
 - 项目内检索默认基于已解析 Markdown records 的词法匹配和打分；`title` / `topics` / relation / body 之外，`key_conclusion` 作为一等高权重信号参与排序，`related_files` 提供有上限的路径/模块 boost 与 tie-break。显式项目检索还能做一跳 typed relation expansion：当查询直接命中 `record_id`，或先命中 typed relation 时，结果可补入关联 record，并在 JSON / 机器可读结果中带 `match: relation-expanded`、`expanded_from`、`expansion_relation` 溯源字段。`sybermem context recall --format json` 会暴露机器可读的匹配字段、分数拆解与这类 expansion provenance；prompt-time Markdown 包保持短小，不注入解释细节。需要跨项目搜索时使用 workspace index。
 - prompt-time recall 继续走更保守的 shared `context recall` gate：只会在高信号 seed 已经成立后，最多为每个 seed 追加 1 条非 evidence 的一跳 relation expansion，全包最多追加 2 条；弱 keyword-only、topic-only、semantic-only 匹配不会触发 expansion，也不会自动注入每轮提示。
 - 可选的 `SYBERMEM_SEMANTIC_RECALL=1` 会启用本地 char n-gram 召回补充，用于显式检索；它不会触发弱 expansion，也不会自动注入每轮提示。
+- prompt-time 的投递体量可通过记忆预算配置：`sybermem context recall --budget minimal|balanced|rich`。`balanced`（默认）与历史行为完全一致——3 条提示、不截断；`minimal` 只投递 1 条，标题上限 80 字符、总字符上限 400；`rich` 最多投递 5 条。优先级为显式 `--budget` > `SYBERMEM_MEMORY_BUDGET` > `.sybermem/project.yaml` 的 `memory_budget:` > `balanced`，无法识别的取值降级为 `balanced`。预算只限制「已通过 gate 的选择」投递多少，绝不放宽高信号 gate；显式 `--limit` 仍然覆盖档位的条数上限。recall 的 JSON 会回报实际生效的 `budget`（档位、条数上限/实际投递、标题字符数、是否截断、被压下的条数）。
+- 已解析记录会跨进程缓存在 `.sybermem/.cache/records.json`（本机派生产物，被 Git 忽略）。prompt-time 召回每条提示都会新起一个 CLI 进程，因此项目未变动时可跳过重新读取与解析全部记录。缓存指纹按「每个文件的 mtime + 大小 + 完整文件集合 + project.yaml」计算，新增、修改、删除记录都会使其失效。它 fail-open：缓存缺失、损坏、超大、被符号链接替换或 schema 不匹配时，静默回退到 Markdown 重新解析——Markdown 始终是唯一真相。缓存只存本地磁盘上已有的记录解析结果，绝不存提示词或查询原文。设 `SYBERMEM_RECORD_CACHE=0` 可关闭。
 
 ## 跨项目协作
 

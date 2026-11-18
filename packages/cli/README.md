@@ -62,6 +62,30 @@ recalled for a given prompt:
 sybermem context recall --query "deploy checklist" --format markdown
 ```
 
+Recall delivery size is configurable with `--budget minimal|balanced|rich`.
+`balanced` is the default and reproduces the historical packet exactly (three
+hints, no truncation); `minimal` delivers one hint with titles capped at 80
+characters and a 400-character ceiling; `rich` delivers up to five. The mode also
+resolves from `SYBERMEM_MEMORY_BUDGET` and from `memory_budget:` in
+`.sybermem/project.yaml`, in that order after an explicit flag; an unknown value
+degrades to `balanced`. A budget caps delivery only — it never loosens the
+high-signal gate — and an explicit `--limit` still overrides the mode's item cap.
+Both JSON and Markdown reflect the budget, and JSON adds a `budget` object with
+`mode`, `max_items`, `delivered_items`, `title_chars`, `truncated`, and
+`withheld_items`:
+
+```bash
+sybermem context recall --query "deploy checklist" --budget minimal --format json
+```
+
+Parsed records are cached across processes in `.sybermem/.cache/records.json`
+(machine-local, Git-ignored, derived), because prompt-time recall forks a fresh
+CLI process per prompt. The cache is keyed by a per-file mtime+size fingerprint
+over the full record set and `project.yaml`, so adds, edits, and deletions all
+invalidate it. It is fail-open — missing, corrupt, oversized, symlinked, or
+schema-mismatched caches silently rebuild from Markdown — and stores only parsed
+record content, never prompt text. `SYBERMEM_RECORD_CACHE=0` disables it.
+
 See the [main repository](https://github.com/goudaren0528/sybermem) for
 installation and usage.
 

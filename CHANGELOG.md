@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.10.0 - 2026-11-18
+
+### Added
+- Configurable memory budgets for prompt-time recall: `sybermem context recall --budget minimal|balanced|rich`, the `SYBERMEM_MEMORY_BUDGET` environment variable, and `memory_budget:` in `.sybermem/project.yaml`. `balanced` is the default and reproduces the previous packet exactly (three hints, no truncation); `minimal` delivers one hint with an 80-character title cap and a 400-character ceiling, `rich` up to five hints. Budgets cap delivery only — the high-signal gate, relation-expansion limits, and trust ordering are unchanged, and an explicit `--limit` still overrides the mode's item cap. Recall JSON now reports the applied `budget`.
+- Cross-process parsed-record cache at `.sybermem/.cache/records.json` (machine-local, Git-ignored, derived). Prompt-time recall forks a CLI process per prompt, so unchanged projects now skip re-reading and re-parsing every record. Fail-open on missing, corrupt, oversized, symlinked, or schema-mismatched caches; disable with `SYBERMEM_RECORD_CACHE=0`. Stores only parsed record content, never prompt text or queries.
+
+### Fixed
+- Record-cache invalidation now fingerprints every record's mtime **and size**, the full record file set, and `project.yaml`. The previous max-mtime fingerprint could keep serving a deleted record, or miss a rewrite that preserved mtime but changed length.
+
 ## 0.9.0 - 2026-09-30
 
 ### Added
