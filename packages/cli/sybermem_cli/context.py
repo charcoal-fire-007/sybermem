@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import argparse
 import sys
+from dataclasses import replace
 
 from sybermem_core.formats import dump_json
+from sybermem_core.memory_budget import apply_budget, resolve_budget
 from sybermem_core.project import resolve_project_root
 from sybermem_core.resume import build_resume_checkpoint
 from sybermem_core.search import (
@@ -172,8 +174,12 @@ def cmd_context_recall(args: argparse.Namespace) -> int:
     This is the programmatic twin of the Claude task-recall hook so OpenCode can
     inject the exact same gated, marker-tagged recall packet per prompt.
     """
+    budget = resolve_budget(resolve_project_root(), explicit=args.budget)
+    # An explicit --limit keeps its historical meaning and overrides the mode's cap.
+    if args.limit is not None:
+        budget = replace(budget, max_items=args.limit)
     try:
-        rows, abstention_reason = high_signal_recall_hints(args.query, limit=args.limit)
+        rows, abstention_reason = high_signal_recall_hints(args.query, limit=budget.max_items)
     except ProjectRootNotFoundError as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -192,12 +198,14 @@ def cmd_context_recall(args: argparse.Namespace) -> int:
             result["expanded_from"] = str(row["expanded_from"])
             result["expansion_relation"] = str(row["expansion_relation"])
         results.append(result)
+    results, budget_metadata = apply_budget(results, budget)
     payload = {
         "kind": "recall",
         "delivery": "prompt-time automatic recall (high-signal gate)",
         "query": args.query,
         "results": results,
         "abstention": abstention_reason or None,
+        "budget": budget_metadata,
     }
     if args.format == "json":
         print(dump_json(payload))
@@ -223,7 +231,8 @@ def register_context_commands(sub) -> None:
 
     recall = context_sub.add_parser("recall")
     recall.add_argument("--query", required=True)
-    recall.add_argument("--limit", type=int, default=3)
+    recall.add_argument("--limit", type=int, default=None)
+    recall.add_argument("--budget", choices=["minimal", "balanced", "rich"], default=None)
     recall.add_argument("--format", choices=["json", "markdown"], default="markdown")
     recall.set_defaults(func=cmd_context_recall)
 
