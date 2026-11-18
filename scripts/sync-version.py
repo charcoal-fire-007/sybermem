@@ -2,16 +2,13 @@
 """Single-source the SyberMem version.
 
 Reads the repo-root ``VERSION`` file and rewrites the version string into every
-distribution manifest so the 9 sites can never silently diverge:
+distribution manifest so the 6 sites can never silently diverge:
 
 - packages/core/pyproject.toml   (``version = "..."``)
 - packages/cli/pyproject.toml    (``version = "..."``)
 - .claude-plugin/plugin.json     (``"version": "..."``)
 - .claude-plugin/marketplace.json(``"version": "..."``)
 - .codex-plugin/plugin.json      (``"version": "..."``)
-- .cursor-plugin/plugin.json     (``"version": "..."``)
-- .kimi-plugin/plugin.json       (``"version": "..."``)
-- gemini-extension.json          (``"version": "..."``)
 - packages/core/sybermem_core/version.py (``FALLBACK_VERSION = "..."``)
 
 Edits are minimal regex substitutions on the version line only; unrelated
@@ -33,9 +30,6 @@ JSON_FILES = [
     ROOT / ".claude-plugin" / "plugin.json",
     ROOT / ".claude-plugin" / "marketplace.json",
     ROOT / ".codex-plugin" / "plugin.json",
-    ROOT / ".cursor-plugin" / "plugin.json",
-    ROOT / ".kimi-plugin" / "plugin.json",
-    ROOT / "gemini-extension.json",
 ]
 
 PY_CONST_FILES = [

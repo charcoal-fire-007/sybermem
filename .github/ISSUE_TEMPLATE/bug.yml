@@ -15,10 +15,7 @@ body:
         - Claude Code (plugin install)
         - Claude Code / OpenCode (script install)
         - OpenCode
-        - Gemini
         - Codex
-        - Cursor
-        - Kimi
         - Other / not sure
     validations:
       required: true

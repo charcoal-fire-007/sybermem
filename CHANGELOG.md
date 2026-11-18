@@ -11,6 +11,10 @@
 ### Fixed
 - Record-cache invalidation now fingerprints every record's mtime **and size**, the full record file set, and `project.yaml`. The previous max-mtime fingerprint could keep serving a deleted record, or miss a rewrite that preserved mtime but changed length.
 
+### Removed
+- Orphaned `schemas/` directory (`project.yaml.example`, `projects.yaml.example`, `search-result.schema.json`): no code, script, manifest, test or doc referenced it.
+- Metadata-only host entries for Gemini, Cursor and Kimi (`gemini-extension.json`, `GEMINI.md`, `.cursor-plugin/`, `.kimi-plugin/`, and the `using-sybermem` Gemini tools reference). These never had runtime hooks or installer wiring; dropping them removes empty version-propagation and integrity-check surface and keeps the platform claims honest. Claude Code, OpenCode and Codex are unaffected.
+
 ## 0.9.0 - 2026-09-30
 
 ### Added

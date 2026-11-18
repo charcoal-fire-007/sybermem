@@ -27,7 +27,6 @@ CANONICAL_USING_SKILL = ROOT / "packages" / "claude-skills" / "using-sybermem" /
 MIRROR_USING_SKILL = ROOT / "skills" / "using-sybermem" / "SKILL.md"
 MANIFEST = ROOT / "scripts" / "managed-install.json"
 INSTALL_COMMON = ROOT / "scripts" / "_install_common.py"
-GEMINI_ENTRYPOINT = ROOT / "GEMINI.md"
 
 EXPECTED_ACTIVE_SKILLS = frozenset(
     {
@@ -532,11 +531,7 @@ def test_retired_inventory_is_unchanged_and_disjoint() -> None:
     assert retired.isdisjoint(EXPECTED_ACTIVE_SKILLS)
 
 
-def test_using_sybermem_stays_active_and_gemini_addressable() -> None:
-    # Given: the Skill source, its mirror, and the Gemini entrypoint
-    gemini = GEMINI_ENTRYPOINT.read_text(encoding="utf-8")
-
-    # When / Then: all three discovery surfaces still reference using-sybermem
+def test_using_sybermem_stays_active_on_both_discovery_surfaces() -> None:
+    # Given / When / Then: the Skill source and its plugin-facing mirror both exist
     assert CANONICAL_USING_SKILL.is_file()
     assert MIRROR_USING_SKILL.is_file()
-    assert "skills/using-sybermem/SKILL.md" in gemini

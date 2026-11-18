@@ -59,7 +59,7 @@ jobs:
       - name: Version single-source is consistent
         run: |
           python scripts/sync-version.py
-          git diff --exit-code -- '**/pyproject.toml' '*-plugin/*.json' '.claude-plugin/*.json' gemini-extension.json
+          git diff --exit-code -- '**/pyproject.toml' '*-plugin/*.json' '.claude-plugin/*.json'
       - name: Skill mirror is in sync (no drift)
         run: |
           python scripts/sync-plugin-skills.py

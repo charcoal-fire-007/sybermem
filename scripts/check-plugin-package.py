@@ -98,17 +98,13 @@ PUBLIC_DOCS: Final = [
     Path("INSTALL.md"),
     Path("CHANGELOG.md"),
     Path("docs/feature_map.md"),
-    Path("GEMINI.md"),
     Path(".codex/INSTALL.md"),
     Path(".opencode/INSTALL.md"),
 ]
 PACKAGE_METADATA: Final = [
     Path(".claude-plugin/plugin.json"),
     Path(".claude-plugin/marketplace.json"),
-    Path(".cursor-plugin/plugin.json"),
     Path(".codex-plugin/plugin.json"),
-    Path(".kimi-plugin/plugin.json"),
-    Path("gemini-extension.json"),
     Path("hooks/hooks.json"),
     Path("packages/core/pyproject.toml"),
     Path("packages/cli/pyproject.toml"),
@@ -1197,9 +1193,6 @@ VERSION_JSON_FILES: Final = [
     Path(".claude-plugin/plugin.json"),
     Path(".claude-plugin/marketplace.json"),
     Path(".codex-plugin/plugin.json"),
-    Path(".cursor-plugin/plugin.json"),
-    Path(".kimi-plugin/plugin.json"),
-    Path("gemini-extension.json"),
 ]
 
 

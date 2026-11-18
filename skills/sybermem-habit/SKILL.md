@@ -159,7 +159,7 @@ $SyberMemCli habit remind --context "planning implementation preference" --forma
 | Storing the user's raw prompt as the habit | Store a normalized statement. |
 | Treating a pending candidate as already active | Explain that candidates require confirmation; use `habit test` to show pending count and selected=0. |
 | Guessing why a habit did not appear | Run `$SyberMemCli habit explain --id <habit-id> --context "<bounded context>" --format json` and report the concrete reason codes. |
-| Claiming unsupported platform reminders | State the actual boundary: Claude Code, OpenCode, and Codex support prompt-time habit reminders on their supported prompt seams; Codex also supports bounded startup context, prompt recall, record-intent capture, Stop record nudges, and compact re-seed markers, but not hidden auto-resume or direct compaction prompt injection. Gemini/Cursor/Kimi do not have runtime reminder wiring. |
+| Claiming unsupported platform reminders | State the actual boundary: Claude Code, OpenCode, and Codex support prompt-time habit reminders on their supported prompt seams; Codex also supports bounded startup context, prompt recall, record-intent capture, Stop record nudges, and compact re-seed markers, but not hidden auto-resume or direct compaction prompt injection. No other host has runtime reminder wiring. |
 | Forcing a habit to compaction-only without reason | Prompt-time (`prompt_ok_when_supported`) is the default so confirmed habits stay perceptible; only downgrade to `compaction_ok`/`manual_only` when the user asks for quieter delivery. |
 
 ## Completion

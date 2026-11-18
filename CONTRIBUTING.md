@@ -28,9 +28,6 @@ Python 3.10+ is required.
   Codex hidden auto-resume, prompt/agent handler runtimes, `.codex/config.toml`,
   broad background automation, and direct compaction prompt injection remain
   unsupported.
-- **Metadata only (entry manifests, not fully wired runtimes):** Gemini, Cursor,
-  Kimi. When touching these, keep their manifests consistent but do not claim full
-  runtime support.
 
 ## Skills are synced, not hand-edited in two places
 
@@ -59,7 +56,7 @@ The version lives in the root `VERSION` file. To bump it:
 
 ```bash
 # 1. edit VERSION
-# 2. propagate to all 8 manifests (2 pyprojects + 5 plugin manifests + gemini)
+# 2. propagate to all 5 manifests (2 pyprojects + 3 plugin manifests)
 python scripts/sync-version.py
 ```
 
