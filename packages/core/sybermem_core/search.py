@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import TypeAlias
 
+from . import record_cache
 from .digest_coverage import digest_coverage_verdict
 from .project import resolve_project_root
 from .records import iter_record_files, parse_project_yaml, parse_record_file
@@ -42,41 +43,31 @@ class ProjectRootNotFoundError(RuntimeError):
         super().__init__("No SyberMem project root found.")
 
 
-# Process-local parsed-record cache: root -> (fingerprint, rows).
-# Transparent: results are identical to re-parsing; only avoids redundant work
-# within a single process (e.g. search_project + its compact fallback).
-_ROW_CACHE: dict[str, tuple[float, list[SearchRow]]] = {}
-
-
-def _records_fingerprint(root: Path) -> float:
-    latest = 0.0
-    for subdir in ("changes", "decisions", "requirements", "bugs", "norms", "digests", "theme-digests"):
-        record_dir = root / ".sybermem" / subdir
-        if not record_dir.is_dir():
-            continue
-        try:
-            latest = max(latest, record_dir.stat().st_mtime)
-            for path in record_dir.glob("*.md"):
-                latest = max(latest, path.stat().st_mtime)
-        except OSError:
-            continue
-    return latest
+# Two-tier parsed-record cache: root -> (fingerprint, rows) in process, plus a
+# machine-local on-disk tier. Every prompt forks a fresh CLI process, so without the
+# second tier each one re-parses every record. Both tiers are transparent to results.
+_ROW_CACHE: dict[str, tuple[str, list[SearchRow]]] = {}
 
 
 def _load_all_rows(root: Path, project_id: str, slug: str) -> list[SearchRow]:
     """Return freshly-copied parsed record rows, reusing a cached parse when unchanged.
 
     Callers mutate the returned rows (score/matched_fields), so we always hand out
-    shallow copies of each row dict. The cache holds pristine parses keyed by the
-    record directories' mtime fingerprint, making it transparent to results.
+    shallow copies of each row dict. Caches hold pristine parses keyed by a per-file
+    mtime+size fingerprint, making them transparent to results.
     """
     key = str(root)
-    fingerprint = _records_fingerprint(root)
+    fingerprint = record_cache.fingerprint(root)
     cached = _ROW_CACHE.get(key)
     if cached is not None and cached[0] == fingerprint:
         pristine = cached[1]
     else:
-        pristine = [_search_row(parse_record_file(rf, project_id, slug)) for rf in iter_record_files(root)]
+        restored = record_cache.load(root, fingerprint)
+        if restored is None:
+            pristine = [_search_row(parse_record_file(rf, project_id, slug)) for rf in iter_record_files(root)]
+            record_cache.store(root, fingerprint, pristine)
+        else:
+            pristine = restored
         _ROW_CACHE[key] = (fingerprint, pristine)
     return [dict(row) for row in pristine]
 

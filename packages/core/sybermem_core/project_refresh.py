@@ -37,6 +37,7 @@ GITIGNORE_BODY: Final = "\n".join(
         GITIGNORE_START,
         "# SyberMem machine-local runtime, scripts, hook wiring, and derived INDEX (not shareable memory).",
         "/.sybermem/hooks/",
+        "/.sybermem/.cache/",
         "/.sybermem/.recall-debug.jsonl",
         "/.sybermem/.recall-outcomes.jsonl",
         "/.sybermem/.memory-usage.jsonl",

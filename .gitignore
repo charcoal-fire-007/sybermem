@@ -37,6 +37,7 @@ dist/
 # >>> SyberMem >>>
 # SyberMem machine-local runtime, scripts, and hook wiring (not shareable memory).
 /.sybermem/hooks/
+/.sybermem/.cache/
 /.sybermem/.recall-debug.jsonl
 /.sybermem/.recall-outcomes.jsonl
 /.sybermem/.memory-usage.jsonl
