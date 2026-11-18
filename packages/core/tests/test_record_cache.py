@@ -218,3 +218,25 @@ def test_cache_never_stores_prompt_text(tmp_path: Path, monkeypatch) -> None:
 
     cache_file = root / ".sybermem" / ".cache" / "records.json"
     assert "a secret prompt nobody should persist" not in cache_file.read_text(encoding="utf-8")
+
+
+def test_symlinked_cache_dir_refused_without_needing_privileges(tmp_path: Path, monkeypatch) -> None:
+    """Exercise the symlink guard on hosts where creating a real link is not permitted."""
+    _ROW_CACHE.clear()
+    root = tmp_path / "project"
+    root.mkdir()
+    write_project(root)
+    write_record(root, "2026-08-05-001-alpha.md", "alpha change", "cachetoken alpha body")
+    monkeypatch.chdir(root)
+
+    real_is_symlink = Path.is_symlink
+
+    def fake_is_symlink(self: Path) -> bool:
+        if self.name == record_cache.CACHE_DIR_NAME:
+            return True
+        return real_is_symlink(self)
+
+    monkeypatch.setattr(Path, "is_symlink", fake_is_symlink)
+
+    assert len(search_project("cachetoken")) == 1
+    assert not (root / ".sybermem" / record_cache.CACHE_DIR_NAME / "records.json").exists()
